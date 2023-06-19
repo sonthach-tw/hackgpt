@@ -1,3 +1,8 @@
-console.info('chrome-ext template-react-js content script')
+// Import Talisman
+function scanInput() {
+  var input = document.getElementById("prompt-textarea").value;
+  console.log(input)
+  // TODO: 1. Scan input for secret keys
+}
 
-export {}
+document.getElementById("prompt-textarea").addEventListener("input", scanInput);
