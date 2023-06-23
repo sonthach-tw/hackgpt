@@ -21,6 +21,7 @@
     "fmt": "prettier --write '**/*.{jsx,js,json,css,scss,md}'"
   },
   "dependencies": {
+    "axios": "^1.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "talisman": "^1.1.4"
