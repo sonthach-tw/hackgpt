@@ -86,3 +86,44 @@ function scanInput() {
 }
 
 document.getElementById("prompt-textarea").addEventListener("input", scanInput);
+
+
+var textarea = document.getElementById("prompt-textarea");
+
+// Create the alert dot element
+var alertDot = document.createElement("div");
+alertDot.className = "alert-dot"
+alertDot.style.backgroundColor = "red";
+alertDot.style.width = "10px";
+alertDot.style.height = "10px";
+
+function displayPopup() {
+  console.log('click popup')
+  var popup = document.createElement("div");
+  popup.textContent = "This is a popup!";
+  popup.style.backgroundColor = "white";
+  popup.style.border = "1px solid black";
+  popup.style.padding = "10px";
+  popup.style.position = "absolute";
+  popup.style.top = "0";
+  popup.style.left = "100%";
+
+  textarea.appendChild(popup);
+}
+
+alertDot.addEventListener("click", displayPopup);
+// alertDot.style.borderRadius = "50%";
+// alertDot.style.display = "inline-block";
+// alertDot.style.position = "absolute";
+// alertDot.style.left = "0";
+// alertDot.style.top = "50%";
+// alertDot.style.transform = "translateY(-50%)";
+//
+// // Set the parent container's position to relative
+// textarea.style.position = "relative";
+
+// Append the alert dot element to the textarea
+textarea.parentNode.appendChild(alertDot);
+
+
+
