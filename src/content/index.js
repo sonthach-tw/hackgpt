@@ -1,6 +1,52 @@
 var delayTimer;
 import axios from 'axios';
+function setupPopup() {
+  const popup = document.createElement("div");
+  popup.id = "popup";
+  popup.innerHTML = "<div id=\"popup\">\n" +
+    "  <h3>Popup Content</h3>\n" +
+    "  <p>This is the content of the popup.</p>\n" +
+    "</div>";
 
+  popup.style.display = 'none';
+  popup.style.position = 'fixed';
+  popup.style.color = 'black';
+  popup.style.top = '50%';
+  popup.style.left = '50%';
+  popup.style.transform = 'translate(-50%, -50%)';
+  popup.style.backgroundColor = '#fff';
+  popup.style.padding = '20px';
+  popup.style.borderRadius = '5px';
+  popup.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
+  popup.style.zIndex = '9999';
+
+// Insert pop up after the chatgpt-alert
+  document.getElementById("chatgpt-alert").insertAdjacentElement("afterend", popup);
+
+
+  document.getElementById("chatgpt-alert").addEventListener("click", function () {
+    console.log('click popup')
+    // toggle the display of the popup
+    if (popup.style.display === 'none') {
+      popup.style.display = 'block';
+    } else {
+      popup.style.display = 'none';
+    }
+  })
+}
+
+
+function setupCheckingElement() {
+  var chatGPTAlert = document.createElement("p");
+  chatGPTAlert.className = 'chatgpt-alert'
+  chatGPTAlert.id = 'chatgpt-alert'
+  chatGPTAlert.style.color = 'white'
+  chatGPTAlert.style.cursor = 'pointer'
+  chatGPTAlert.style.padding = '10px'
+  chatGPTAlert.textContent = 'Checking for patterns...'
+
+  document.getElementById("prompt-textarea").insertAdjacentElement("afterend", chatGPTAlert);
+}
 function checkPattern(input) {
   // Define the patterns
   const patterns = {
@@ -62,27 +108,19 @@ function checkPattern(input) {
   return res;
 }
 
-
 function scanInput() {
   clearTimeout(delayTimer); // Clear the previous timer
 
   delayTimer = setTimeout(function () {
     var input = document.getElementById("prompt-textarea").value;
-    console.log('checking pattern')
-    const patterns = checkPattern(input)
-    if (patterns.length !== 0){
-      console.log('append alert to prompt-textarea')
-      console.log(patterns)
-      // var alert = buildAlert();
-      // appendAlertToPrompt(alert);
-    }
+    console.log(input)
+    // set header for all requests content type is json
+    // Post request to the server
 
-    // axios.post('/predict', {
-    //   input: input
-    // }).then(function (response) {
-    //   console.log(response);
-    // });
-  }, 100); // Wait for 1 second before making the request
+  },500)
+
+
+
 }
 
 document.getElementById("prompt-textarea").addEventListener("input", scanInput);
@@ -90,40 +128,17 @@ document.getElementById("prompt-textarea").addEventListener("input", scanInput);
 
 var textarea = document.getElementById("prompt-textarea");
 
-// Create the alert dot element
-var alertDot = document.createElement("div");
-alertDot.className = "alert-dot"
-alertDot.style.backgroundColor = "red";
-alertDot.style.width = "10px";
-alertDot.style.height = "10px";
+textarea.addEventListener("input",scanInput);
 
-function displayPopup() {
-  console.log('click popup')
-  var popup = document.createElement("div");
-  popup.textContent = "This is a popup!";
-  popup.style.backgroundColor = "white";
-  popup.style.border = "1px solid black";
-  popup.style.padding = "10px";
-  popup.style.position = "absolute";
-  popup.style.top = "0";
-  popup.style.left = "100%";
 
-  textarea.appendChild(popup);
-}
+setupCheckingElement();
 
-alertDot.addEventListener("click", displayPopup);
-// alertDot.style.borderRadius = "50%";
-// alertDot.style.display = "inline-block";
-// alertDot.style.position = "absolute";
-// alertDot.style.left = "0";
-// alertDot.style.top = "50%";
-// alertDot.style.transform = "translateY(-50%)";
-//
-// // Set the parent container's position to relative
-// textarea.style.position = "relative";
 
-// Append the alert dot element to the textarea
-textarea.parentNode.appendChild(alertDot);
+
+setupPopup();
+
+
+
 
 
 
