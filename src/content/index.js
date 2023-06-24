@@ -3,40 +3,40 @@ import axios from 'axios';
 
 var chatGPTAlert = document.createElement("p");
 
-function setupPopup() {
-  const popup = document.createElement("div");
-  popup.id = "popup";
-  popup.innerHTML = "<div id=\"popup\">\n" +
-    "  <h3>Popup Content</h3>\n" +
-    "  <p>This is the content of the popup.</p>\n" +
-    "</div>";
-
-  popup.style.display = 'none';
-  popup.style.position = 'fixed';
-  popup.style.color = 'black';
-  popup.style.top = '50%';
-  popup.style.left = '50%';
-  popup.style.transform = 'translate(-50%, -50%)';
-  popup.style.backgroundColor = '#fff';
-  popup.style.padding = '20px';
-  popup.style.borderRadius = '5px';
-  popup.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
-  popup.style.zIndex = '9999';
-
-// Insert pop up after the chatgpt-alert
-  document.getElementById("chatgpt-alert").insertAdjacentElement("afterend", popup);
-
-
-  document.getElementById("chatgpt-alert").addEventListener("click", function () {
-    console.log('click popup')
-    // toggle the display of the popup
-    if (popup.style.display === 'none') {
-      popup.style.display = 'block';
-    } else {
-      popup.style.display = 'none';
-    }
-  })
-}
+// function setupPopup() {
+//   const popup = document.createElement("div");
+//   popup.id = "popup";
+//   popup.innerHTML = "<div id=\"popup\">\n" +
+//     "  <h3>Popup Content</h3>\n" +
+//     "  <p>This is the content of the popup.</p>\n" +
+//     "</div>";
+//
+//   popup.style.display = 'none';
+//   popup.style.position = 'fixed';
+//   popup.style.color = 'black';
+//   popup.style.top = '50%';
+//   popup.style.left = '50%';
+//   popup.style.transform = 'translate(-50%, -50%)';
+//   popup.style.backgroundColor = '#fff';
+//   popup.style.padding = '20px';
+//   popup.style.borderRadius = '5px';
+//   popup.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.3)';
+//   popup.style.zIndex = '9999';
+//
+// // Insert pop up after the chatgpt-alert
+//   document.getElementById("chatgpt-alert").insertAdjacentElement("afterend", popup);
+//
+//
+//   document.getElementById("chatgpt-alert").addEventListener("click", function () {
+//     console.log('click popup')
+//     // toggle the display of the popup
+//     if (popup.style.display === 'none') {
+//       popup.style.display = 'block';
+//     } else {
+//       popup.style.display = 'none';
+//     }
+//   })
+// }
 
 
 function setupCheckingElement() {
@@ -166,6 +166,7 @@ function checkPattern(input) {
     IBM_Watson_Assistant_Workspace_ID: /^[a-zA-Z0-9]{32}$/,
     IBM_Watson_Assistant_API_Key: /^[a-zA-Z0-9_\-]{40}$/,
     Google_Service_Account_JSON: /^{[\s\S]*"type": "service_account"[\s\S]*}$/,
+    EMAIL: /^[\w+\-.]+@[a-zA-Z0-9\-]+(\.[a-zA-Z0-9\-]+)*\.[a-zA-Z0-9]{2,}$/
   };
 
   const res = []
@@ -184,7 +185,7 @@ function checkPattern(input) {
 
 
 function showAlert(key) {
-  chatGPTAlert.innerHTML = `This message might contains ${key}!`
+  chatGPTAlert.innerHTML = `This message might contains ${key}!, click to mask them`
   // make the color red
   chatGPTAlert.style.color = "red"
 
@@ -227,16 +228,27 @@ function scanInput() {
     const normalLabels = ['Narrative', 'General']
     const labels = sensitiveLabels.concat(normalLabels)
 
-    let detected = false
+    const maskingWords = []
 
     input.split(' ').forEach((word) => {
       const patterns  = checkPattern(word)
       if (patterns.length > 0) {
-        detected = true
-        return showAlert(patterns.join(', '))
+        showAlert(patterns.join(', '))
+        // mask the input with ****
+        maskingWords.push(word)
       }
     })
-    if (detected) {
+    if (maskingWords.length !== 0) {
+      chatGPTAlert.addEventListener('click', () => {
+        const maskedInput = input.split(' ').map((word) => {
+          if (maskingWords.includes(word)) {
+            return '****'
+          }
+          return word
+        }).join(' ')
+        document.getElementById("prompt-textarea").value = maskedInput
+        greenText()
+      })
       return
     }
 
