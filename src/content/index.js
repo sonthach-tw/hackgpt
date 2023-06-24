@@ -2,6 +2,7 @@ var delayTimer;
 import axios from 'axios';
 
 var chatGPTAlert = document.createElement("p");
+
 function setupPopup() {
   const popup = document.createElement("div");
   popup.id = "popup";
@@ -93,7 +94,78 @@ function checkPattern(input) {
     Box_Links: /^https:\/\/app.box.com\/[s|l]\/\S+$/,
     Large_number_of_US_Zip_Codes: /^(\d{5}-\d{4}|\d{5})$/,
     MySQL_database_dump: /^DROP DATABASE IF EXISTS(?:.|\n){5,200}CREATE DATABASE(?:.|\n){5,200}DROP TABLE IF EXISTS(?:.|\n){5,200}CREATE TABLE$/,
-    MySQLite_database_dump: /^DROP\ TABLE\ IF\ EXISTS\ \[[a-zA-Z]*\];|CREATE\ TABLE\ \[[a-zA-Z]*\];$/
+    MySQLite_database_dump: /^DROP\ TABLE\ IF\ EXISTS\ \[[a-zA-Z]*\];|CREATE\ TABLE\ \[[a-zA-Z]*\];$/,
+    GitHub_Access_Token: /^[a-zA-Z0-9]{40}$/,
+    AWS_Access_Key_ID: /^AKIA[0-9A-Z]{16}$/,
+    AWS_Secret_Access_Key: /^[\w\/+=]{40}$/,
+    Slack_Token: /^xox[baprs]-[0-9]{12}-[0-9]{12}-[0-9]{12}-[a-z0-9]{32}$/,
+    Trello_API_Key: /^[0-9a-f]{32}$/,
+    Trello_Token: /^[0-9a-f]{64}$/,
+    Discord_Token: /^[\w-]{24}\.[\w-]{6}\.[\w-]{27}$/,
+    Auth0_Client_ID: /^[\w-]{26}$/,
+    Auth0_Client_Secret: /^[\w-]{43}$/,
+    Asana_PAT: /^0\/[0-9a-f]{32}$/,
+    JIRA_Token: /^[0-9a-f]{48}$/,
+    Slack_Webhook_URL: /^https:\/\/hooks\.slack\.com\/services\/T\w+\/B\w+\/\w+$/,
+    Google_API_Key: /^[A-Za-z0-9_]{39}$/,
+    AWS_SQS_Queue_URL: /^https:\/\/sqs\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com\/[0-9]{12}\/[a-zA-Z0-9\-_]+$/,
+    Firebase_Web_API_Key: /^[a-zA-Z0-9_\-]{25,}$/,
+
+// Previous patterns...
+    Slack_User_Token: /^xoxp-[0-9]{12}-[0-9]{12}-[0-9]{12}-[a-z0-9]{32}$/,
+    GitHub_Client_ID: /^[0-9a-f]{20}$/,
+    GitHub_Client_Secret: /^[0-9a-f]{40}$/,
+    Twitter_API_Key: /^[a-zA-Z0-9]{25,32}$/,
+    Twitter_API_Secret_Key: /^[a-zA-Z0-9]{35,45}$/,
+    LinkedIn_Client_ID: /^[a-zA-Z0-9]{12}$/,
+    LinkedIn_Client_Secret: /^[a-zA-Z0-9]{16}$/,
+    Facebook_App_ID: /^[0-9]{13,15}$/,
+    Facebook_App_Secret: /^[0-9a-f]{32}$/,
+    Google_Service_Account_Key: /^[\w-]{36}\.json$/,
+    Azure_Service_Principal_Client_ID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    Azure_Service_Principal_Client_Secret: /^[0-9a-zA-Z]{44}$/,
+    Salesforce_Session_ID: /^00D[a-zA-Z0-9]{12,15}\.[a-zA-Z0-9]{4,15}\.[a-zA-Z0-9]{4,15}$/,
+    Salesforce_OAuth_Access_Token: /^00D[a-zA-Z0-9]{12,15}![a-zA-Z0-9]{8,48}$/,
+    SendGrid_API_Key: /^SG\.[a-zA-Z0-9_\-]{22}\.[a-zA-Z0-9_\-]{43}$/,
+    Twilio_Account_SID: /^AC[a-zA-Z0-9]{32}$/,
+    Twilio_Auth_Token: /^[0-9a-f]{32}$/,
+    Stripe_Secret_Key: /^sk_live_[0-9a-zA-Z]{24}$/,
+    Stripe_Publishable_Key: /^pk_live_[0-9a-zA-Z]{24}$/,
+    PayPal_Client_ID: /^A[a-zA-Z0-9_-]{16,32}$/,
+    PayPal_Client_Secret: /^[a-zA-Z0-9]{24,32}$/,
+    Zoom_API_Key: /^[a-zA-Z0-9]{19}$/,
+    Zoom_API_Secret: /^[a-zA-Z0-9]{39}$/,
+    Slack_App_Token: /^xapp-[A-Z0-9]{21}-[A-Z0-9]{9}-[A-Z0-9]{9}-[a-z0-9]{32}$/,
+    Dropbox_API_Token: /^[-_a-zA-Z0-9]{64}$/,
+    WhatsApp_API_Token: /^[0-9a-zA-Z]{32}$/,
+    Authy_API_Key: /^[0-9a-zA-Z]{32}$/,
+    Slack_Bot_User_OAuth_Access_Token: /^xoxb-[0-9]{12}-[0-9]{12}-[a-zA-Z0-9]{24}$/,
+    Slack_App_User_OAuth_Access_Token: /^xoxp-[0-9]{12}-[0-9]{12}-[a-zA-Z0-9]{24}$/,
+
+
+    Docker_Hub_Access_Token: /^[a-zA-Z0-9]{64}$/,
+    DigitalOcean_API_Token: /^[a-f0-9]{64}$/,
+    Slack_Signing_Secret: /^[0-9a-f]{32}$/,
+    GitHub_Personal_Access_Token: /^[0-9a-f]{40}$/,
+    Jenkins_Credential: /^(?:username|password): .+$/,
+    JFrog_Artifactory_API_Key: /^[0-9a-f]{32}$/,
+    GitLab_Access_Token: /^[0-9a-zA-Z]{20,}$/,
+
+    // Add more patterns here...
+    Atlassian_API_Token: /^[0-9a-zA-Z]{48}$/,
+    Atlassian_App_Secret: /^[0-9a-f]{40}$/,
+    Slack_Secret: /^[0-9a-zA-Z]{16,32}$/,
+    Microsoft_Azure_Client_ID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    Microsoft_Azure_Client_Secret: /^[0-9a-zA-Z]{24,72}$/,
+    Microsoft_Azure_Tenant_ID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    Microsoft_Azure_Subscription_ID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    Microsoft_Azure_Application_ID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    Microsoft_Azure_Certificate: /^-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----$/,
+    IBM_Cloud_API_Key: /^[a-zA-Z0-9]{32}$/,
+    IBM_Watson_API_Key: /^[a-zA-Z0-9]{44}$/,
+    IBM_Watson_Assistant_Workspace_ID: /^[a-zA-Z0-9]{32}$/,
+    IBM_Watson_Assistant_API_Key: /^[a-zA-Z0-9_\-]{40}$/,
+    Google_Service_Account_JSON: /^{[\s\S]*"type": "service_account"[\s\S]*}$/,
   };
 
   const res = []
@@ -111,27 +183,68 @@ function checkPattern(input) {
 }
 
 
+function showAlert(key) {
+  chatGPTAlert.innerHTML = `This message might contains ${key}!`
+  // make the color red
+  chatGPTAlert.style.color = "red"
+
+  const submitButton = textarea.parentNode.childNodes[textarea.parentNode.childNodes.length - 1]
+  submitButton.disabled = true
+}
+
+function greenText() {
+  chatGPTAlert.innerHTML = `Nothing has been detected!`
+  // make the color red
+  chatGPTAlert.style.color = "green"
+  const submitButton = textarea.parentNode.childNodes[textarea.parentNode.childNodes.length - 1]
+  submitButton.disabled = false
+}
+
 function scanInput() {
   clearTimeout(delayTimer); // Clear the previous timer
 
   var input = document.getElementById("prompt-textarea").value;
 
 
-  if (input === ''){
+  if (input === '') {
     chatGPTAlert.innerHTML = ``
-  }else {
+  } else {
     chatGPTAlert.textContent = 'Checking for patterns...'
     chatGPTAlert.style.color = "white"
   }
-
   delayTimer = setTimeout(function () {
     if (input === '') {
       return
     }
+    const sensitiveLabels = [
+      "JIRA Issue Key",
+      "JIRA User Story",
+      "secret",
+      "project information",
+      "credit card number",
+      "Personal Identification Number (PIN)",
+    ]
+    const normalLabels = ['Narrative', 'General']
+    const labels = sensitiveLabels.concat(normalLabels)
+
+    let detected = false
+
+    input.split(' ').forEach((word) => {
+      const patterns  = checkPattern(word)
+      if (patterns.length > 0) {
+        detected = true
+        return showAlert(patterns.join(', '))
+      }
+    })
+    if (detected) {
+      return
+    }
+
+
     axios.post('http://107.23.251.205:5001/predict', {
       text: input,
-      labels: ["secret", "project information", "credit card number", "password"]
-    }).then((res)=>{
+      labels: labels
+    }).then((res) => {
       // {credit card number: 0.10985954850912094, password: 0.5424003005027771, project information: 0.1493598371744156, secret: 0.19838030636310577}
       const resObj = res.data
       console.log(resObj)
@@ -140,16 +253,9 @@ function scanInput() {
         if (resObj[key] > 0.5) {
           console.log(key)
           // Set chatGPTAlert content
-          chatGPTAlert.innerHTML = `This message contains ${key}!`
-          // make the color red
-          chatGPTAlert.style.color = "red"
-
-          const submitButton = textarea.parentNode.childNodes[textarea.parentNode.childNodes.length - 1]
-          submitButton.disabled = true
-        }else {
-          chatGPTAlert.innerHTML = `Nothing has been detected!`
-          // make the color red
-          chatGPTAlert.style.color = "green"
+          showAlert(key);
+        } else {
+          greenText();
         }
       }
     })
@@ -165,7 +271,6 @@ var textarea = document.getElementById("prompt-textarea");
 textarea.addEventListener("input", scanInput);
 
 
-
 setupCheckingElement();
 
 
@@ -176,3 +281,18 @@ setupPopup();
 
 
 
+// function that hash password
+function hashPassword(password) {
+  return new Promise((resolve, reject) => {
+    bcrypt.hash(password, 10, function (err, hash) {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(hash)
+      }
+    });
+  })
+}
+
+
+hashPassword('123456')
