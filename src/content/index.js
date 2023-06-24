@@ -74,7 +74,6 @@ function checkPattern(input) {
     SSL_Certificate: /^-----BEGIN CERTIFICATE-----(?:.|\n)+?\s-----END CERTIFICATE-----$/,
     Lightweight_Directory_Access_Protocol: /^(?:dn|cn|dc|sn):\s*[a-zA-Z0-9=, ]*$/,
     Arista_network_configuration: /^via\ \d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3},\ \d{2}:\d{2}:\d{2}$/,
-    John_the_Ripper: /^[J,j]ohn\ [T,t]he\ [R,r]ipper|john-[1-9].[1-9].[1-9]|Many\ salts:|Only\ one\ salt:|openwall.com\/john\/|List.External:[0-9a-zA-Z]*|Loaded\ [0-9]*\ password hash|guesses:\ \d*\ \ time:\ \d*:\d{2}:\d{2}:\d{2}|john\.pot$/,
     Huawei_config_file: /^sysname\ HUAWEI|set\ authentication\ password\ simple\ huawei$/,
     Metasploit_Module: /^require\ 'msf\/core'|class\ Metasploit|include\ Msf::Exploit::\w+::\w+$/,
     Network_Proxy_Auto_Config: /^proxy\.pac|function\ FindProxyForURL\(\w+,\ \w+\)$/,
@@ -187,10 +186,10 @@ function checkPattern(input) {
 
 function showAlert(key, priority, canMask = false) {
   chatGPTAlert.innerHTML = `This message might contains ${key}! ${canMask ? ', click to mask' : ''}`
-  // make the color red
-  chatGPTAlert.style.color = "orange"
+  // make the color light orange
+  chatGPTAlert.style.color = "#ff8c00"
   if (priority >= 0.5) {
-    chatGPTAlert.style.color = "red"
+    chatGPTAlert.style.color = "#ff0000"
   }
 
   const submitButton = textarea.parentNode.childNodes[textarea.parentNode.childNodes.length - 1]
@@ -199,11 +198,12 @@ function showAlert(key, priority, canMask = false) {
 
 function greenText() {
   chatGPTAlert.innerHTML = `Nothing has been detected!`
-  // make the color red
-  chatGPTAlert.style.color = "green"
+  // make the color light green
+  chatGPTAlert.style.color = '#00ff00'
   const submitButton = textarea.parentNode.childNodes[textarea.parentNode.childNodes.length - 1]
   submitButton.disabled = false
 }
+// create array with 100 elements
 
 function maskWords(input, maskingWords) {
   chatGPTAlert.addEventListener('click', () => {
@@ -212,7 +212,7 @@ function maskWords(input, maskingWords) {
         return maskingWord.word === word
       })
       if (found) {
-        return `<<${found.pattern}>>`
+        return `<<MASKED>>`
       } else {
         return word
       }
@@ -256,7 +256,7 @@ function scanInput() {
     if (input === '') {
       return
     }
-    const sensitiveLabels = ["secret","project information","credit card number","password", "ssh key","project user story"]
+    const sensitiveLabels = ["secret","project information","credit card","password", "ssh key","project user story"]
     const normalLabels = []
     const labels = sensitiveLabels.concat(normalLabels)
 
@@ -264,7 +264,7 @@ function scanInput() {
     console.log(labels)
 
     // replace input if it contains any value of labels
-    const maskedInput = input.replace(/(secret|project information|credit card number|password|ssh key|project user story)/g, '')
+    const maskedInput = input.replace(/(secret|project information|credit card|password|ssh key|project user story)/g, '')
 
     axios.post('http://107.23.251.205:5001/predict', {
       text: maskedInput,
