@@ -1,5 +1,7 @@
 var delayTimer;
 import axios from 'axios';
+
+var chatGPTAlert = document.createElement("p");
 function setupPopup() {
   const popup = document.createElement("div");
   popup.id = "popup";
@@ -37,16 +39,16 @@ function setupPopup() {
 
 
 function setupCheckingElement() {
-  var chatGPTAlert = document.createElement("p");
+
   chatGPTAlert.className = 'chatgpt-alert'
   chatGPTAlert.id = 'chatgpt-alert'
   chatGPTAlert.style.color = 'white'
   chatGPTAlert.style.cursor = 'pointer'
   chatGPTAlert.style.padding = '10px'
-  chatGPTAlert.textContent = 'Checking for patterns...'
-
+  chatGPTAlert.style.paddingBottom = '0px'
   document.getElementById("prompt-textarea").insertAdjacentElement("afterend", chatGPTAlert);
 }
+
 function checkPattern(input) {
   // Define the patterns
   const patterns = {
@@ -108,19 +110,51 @@ function checkPattern(input) {
   return res;
 }
 
+
 function scanInput() {
   clearTimeout(delayTimer); // Clear the previous timer
 
+  var input = document.getElementById("prompt-textarea").value;
+
+
+  if (input === ''){
+    chatGPTAlert.innerHTML = ``
+  }else {
+    chatGPTAlert.textContent = 'Checking for patterns...'
+    chatGPTAlert.style.color = "white"
+  }
+
   delayTimer = setTimeout(function () {
-    var input = document.getElementById("prompt-textarea").value;
-    console.log(input)
-    // set header for all requests content type is json
-    // Post request to the server
+    if (input === '') {
+      return
+    }
+    axios.post('http://107.23.251.205:5001/predict', {
+      text: input,
+      labels: ["secret", "project information", "credit card number", "password"]
+    }).then((res)=>{
+      // {credit card number: 0.10985954850912094, password: 0.5424003005027771, project information: 0.1493598371744156, secret: 0.19838030636310577}
+      const resObj = res.data
+      console.log(resObj)
+      // Check if any value > 0.5 then log the key to console
+      for (const key in resObj) {
+        if (resObj[key] > 0.5) {
+          console.log(key)
+          // Set chatGPTAlert content
+          chatGPTAlert.innerHTML = `This message contains ${key}!`
+          // make the color red
+          chatGPTAlert.style.color = "red"
 
-  },500)
+          const submitButton = textarea.parentNode.childNodes[textarea.parentNode.childNodes.length - 1]
+          submitButton.disabled = true
+        }else {
+          chatGPTAlert.innerHTML = `Nothing has been detected!`
+          // make the color red
+          chatGPTAlert.style.color = "green"
+        }
+      }
+    })
 
-
-
+  }, 1000)
 }
 
 document.getElementById("prompt-textarea").addEventListener("input", scanInput);
@@ -128,11 +162,11 @@ document.getElementById("prompt-textarea").addEventListener("input", scanInput);
 
 var textarea = document.getElementById("prompt-textarea");
 
-textarea.addEventListener("input",scanInput);
+textarea.addEventListener("input", scanInput);
+
 
 
 setupCheckingElement();
-
 
 
 setupPopup();
