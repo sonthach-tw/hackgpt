@@ -110,6 +110,7 @@ function checkPattern(input) {
     Google_API_Key: /^[A-Za-z0-9_]{39}$/,
     AWS_SQS_Queue_URL: /^https:\/\/sqs\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com\/[0-9]{12}\/[a-zA-Z0-9\-_]+$/,
     Firebase_Web_API_Key: /^[a-zA-Z0-9_\-]{25,}$/,
+    CREDIT_CARD: /^((4\d{3})|(5[1-5]\d{2})|(6011))([- ]?)\d{4}\4\d{4}\4\d{4}|3[4,7]\d{13}$/,
 
 // Previous patterns...
     Slack_User_Token: /^xoxp-[0-9]{12}-[0-9]{12}-[0-9]{12}-[a-z0-9]{32}$/,
@@ -117,9 +118,9 @@ function checkPattern(input) {
     GitHub_Client_Secret: /^[0-9a-f]{40}$/,
     Twitter_API_Key: /^[a-zA-Z0-9]{25,32}$/,
     Twitter_API_Secret_Key: /^[a-zA-Z0-9]{35,45}$/,
-    LinkedIn_Client_ID: /^[a-zA-Z0-9]{12}$/,
+    // LinkedIn_Client_ID: /^[a-zA-Z0-9]{12}$/,
     LinkedIn_Client_Secret: /^[a-zA-Z0-9]{16}$/,
-    Facebook_App_ID: /^[0-9]{13,15}$/,
+    // Facebook_App_ID: /^[0-9]{13,15}$/,
     Facebook_App_Secret: /^[0-9a-f]{32}$/,
     Google_Service_Account_Key: /^[\w-]{36}\.json$/,
     Azure_Service_Principal_Client_ID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
@@ -154,7 +155,7 @@ function checkPattern(input) {
     // Add more patterns here...
     Atlassian_API_Token: /^[0-9a-zA-Z]{48}$/,
     Atlassian_App_Secret: /^[0-9a-f]{40}$/,
-    Slack_Secret: /^[0-9a-zA-Z]{16,32}$/,
+    // Slack_Secret: /^[0-9a-zA-Z]{16,32}$/,
     Microsoft_Azure_Client_ID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
     Microsoft_Azure_Client_Secret: /^[0-9a-zA-Z]{24,72}$/,
     Microsoft_Azure_Tenant_ID: /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
@@ -184,13 +185,16 @@ function checkPattern(input) {
 }
 
 
-function showAlert(key) {
-  chatGPTAlert.innerHTML = `This message might contains ${key}!, click to mask them`
+function showAlert(key, priority, canMask = false) {
+  chatGPTAlert.innerHTML = `This message might contains ${key}! ${canMask ? ', click to mask' : ''}`
   // make the color red
-  chatGPTAlert.style.color = "red"
+  chatGPTAlert.style.color = "orange"
+  if (priority >= 0.5) {
+    chatGPTAlert.style.color = "red"
+  }
 
   const submitButton = textarea.parentNode.childNodes[textarea.parentNode.childNodes.length - 1]
-  submitButton.disabled = true
+  // submitButton.disabled = true
 }
 
 function greenText() {
@@ -199,6 +203,24 @@ function greenText() {
   chatGPTAlert.style.color = "green"
   const submitButton = textarea.parentNode.childNodes[textarea.parentNode.childNodes.length - 1]
   submitButton.disabled = false
+}
+
+function maskWords(input, maskingWords) {
+  chatGPTAlert.addEventListener('click', () => {
+    const maskedInput = input.split(' ').map((word) => {
+      const found = maskingWords.find((maskingWord) => {
+        return maskingWord.word === word
+      })
+      if (found) {
+        return `<<${found.pattern}>>`
+      } else {
+        return word
+      }
+
+    }).join(' ')
+    document.getElementById("prompt-textarea").value = maskedInput
+    greenText()
+  })
 }
 
 function scanInput() {
@@ -226,22 +248,7 @@ function scanInput() {
     }
   })
   if (maskingWords.length !== 0) {
-    console.log(maskingWords)
-    chatGPTAlert.addEventListener('click', () => {
-      const maskedInput = input.split(' ').map((word) => {
-        const found = maskingWords.find((maskingWord) => {
-          return maskingWord.word === word
-        })
-        if (found) {
-          return `<<${found.pattern}>>`
-        } else {
-          return word
-        }
-
-      }).join(' ')
-      document.getElementById("prompt-textarea").value = maskedInput
-      greenText()
-    })
+    maskWords(input, maskingWords);
     return
   }
 
@@ -249,19 +256,18 @@ function scanInput() {
     if (input === '') {
       return
     }
-    const sensitiveLabels = [
-      "JIRA Issue Key",
-      "JIRA User Story",
-      "secret",
-      "project information",
-      "credit card number",
-      "Personal Identification Number (PIN)",
-    ]
-    const normalLabels = ['Narrative', 'General']
+    const sensitiveLabels = ["secret","project information","credit card number","password", "ssh key","project user story"]
+    const normalLabels = []
     const labels = sensitiveLabels.concat(normalLabels)
 
+    // replace word map labels
+    console.log(labels)
+
+    // replace input if it contains any value of labels
+    const maskedInput = input.replace(/(secret|project information|credit card number|password|ssh key|project user story)/g, '')
+
     axios.post('http://107.23.251.205:5001/predict', {
-      text: input,
+      text: maskedInput,
       labels: labels
     }).then((res) => {
       // {credit card number: 0.10985954850912094, password: 0.5424003005027771, project information: 0.1493598371744156, secret: 0.19838030636310577}
@@ -269,11 +275,11 @@ function scanInput() {
       console.log(resObj)
       // Check if any value > 0.5 then log the key to console
       for (const key in resObj) {
-        if (resObj[key] > 0.5) {
+        if (resObj[key] > 0.3) {
           console.log(key)
           // Set chatGPTAlert content
-          showAlert(key);
-        } else {
+          return showAlert(key,resObj[key]);
+        } else{
           greenText();
         }
       }
