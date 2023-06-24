@@ -213,6 +213,38 @@ function scanInput() {
     chatGPTAlert.textContent = 'Checking for patterns...'
     chatGPTAlert.style.color = "white"
   }
+
+  const maskingWords = []
+  input.split(' ').forEach((word) => {
+    const patterns  = checkPattern(word)
+    if (patterns.length > 0) {
+      showAlert(patterns.join(', '))
+      maskingWords.push({
+        word: word,
+        pattern: patterns[0]
+      })
+    }
+  })
+  if (maskingWords.length !== 0) {
+    console.log(maskingWords)
+    chatGPTAlert.addEventListener('click', () => {
+      const maskedInput = input.split(' ').map((word) => {
+        const found = maskingWords.find((maskingWord) => {
+          return maskingWord.word === word
+        })
+        if (found) {
+          return `<<${found.pattern}>>`
+        } else {
+          return word
+        }
+
+      }).join(' ')
+      document.getElementById("prompt-textarea").value = maskedInput
+      greenText()
+    })
+    return
+  }
+
   delayTimer = setTimeout(function () {
     if (input === '') {
       return
@@ -227,31 +259,6 @@ function scanInput() {
     ]
     const normalLabels = ['Narrative', 'General']
     const labels = sensitiveLabels.concat(normalLabels)
-
-    const maskingWords = []
-
-    input.split(' ').forEach((word) => {
-      const patterns  = checkPattern(word)
-      if (patterns.length > 0) {
-        showAlert(patterns.join(', '))
-        // mask the input with ****
-        maskingWords.push(word)
-      }
-    })
-    if (maskingWords.length !== 0) {
-      chatGPTAlert.addEventListener('click', () => {
-        const maskedInput = input.split(' ').map((word) => {
-          if (maskingWords.includes(word)) {
-            return '****'
-          }
-          return word
-        }).join(' ')
-        document.getElementById("prompt-textarea").value = maskedInput
-        greenText()
-      })
-      return
-    }
-
 
     axios.post('http://107.23.251.205:5001/predict', {
       text: input,
