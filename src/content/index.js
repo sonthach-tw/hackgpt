@@ -275,24 +275,5 @@ setupCheckingElement();
 
 
 setupPopup();
+console.log("Hello from the content script!");
 
-
-
-
-
-
-// function that hash password
-function hashPassword(password) {
-  return new Promise((resolve, reject) => {
-    bcrypt.hash(password, 10, function (err, hash) {
-      if (err) {
-        reject(err)
-      } else {
-        resolve(hash)
-      }
-    });
-  })
-}
-
-
-hashPassword('123456')
