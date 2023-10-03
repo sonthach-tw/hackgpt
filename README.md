@@ -1,6 +1,6 @@
 # Leakshield
 
-> A chrome extension to detect security vulnerability in ChatGPT prompt
+A chrome extension to detect security vulnerability in ChatGPT prompt
 
 
 # Front end
