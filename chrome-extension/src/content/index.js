@@ -266,7 +266,7 @@ function scanInput() {
     // replace input if it contains any value of labels
     const maskedInput = input.replace(/(secret|project information|credit card|password|ssh key|project user story)/g, '')
 
-    axios.post('http://107.23.251.205:5001/predict', {
+    axios.post('http://127.0.0.1:5001/predict', {
       text: maskedInput,
       labels: labels
     }).then((res) => {
