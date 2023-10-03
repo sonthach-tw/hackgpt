@@ -12,4 +12,4 @@ Summary
 ## 0.0.0 [2023.06.19]
 
 - feat: initial
-- feat: generator by ![create-chrome-ext](https://www.npmjs.com/package/create-chrome-ext)
+- feat: generator by ![leakshield](https://www.npmjs.com/package/leakshield)

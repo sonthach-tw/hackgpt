@@ -1,5 +1,5 @@
 {
-  "name": "hackgpt-2",
+  "name": "leakshield",
   "version": "0.0.0",
   "author": "no one",
   "description": "",
@@ -9,7 +9,7 @@
     "chrome-extension",
     "react",
     "vite",
-    "create-chrome-ext"
+    "leakshield"
   ],
   "engines": {
     "node": ">=14.18.0"
