@@ -2,9 +2,10 @@ from flask import Flask, request
 from transformers import pipeline
 import re
 from collections import OrderedDict
-
+from flask_cors import CORS  # Import CORS from flask_cors
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for your Flask app
 
 # Load the zero-shot classification pipeline
 classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
