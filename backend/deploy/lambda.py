@@ -70,8 +70,6 @@ def lambda_handler(event):
   if event.get('body'):
     body = json.loads(event['body'])['text']
   else:
-    print("eh s")
-
     return {
       'statusCode': 400,
       'body': json.dumps('Missing body')
@@ -98,7 +96,6 @@ def lambda_handler(event):
   # strip off XML response tags
   result = result.replace('<response>', '')
   result = result.replace('</response>', '')
-  print("eh s" + result)
 
   # return success 
   return {
